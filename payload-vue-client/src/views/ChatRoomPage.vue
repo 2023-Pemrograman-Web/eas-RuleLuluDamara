@@ -31,6 +31,17 @@
                   </div>
                 </div>
               </li>
+              <li v-for="(receiver, index) in receivermessage" :key="index" class="text-white d-flex justify-content-center">
+                <div class="card mask-custom" style="width: 50%">
+                  <div class="card-header d-flex justify-content-between p-3 m-2" style="border-bottom: 1px solid rgba(255, 255, 255, 0.3); border-radius: 50px">
+                    <img :src="'https://picsum.photos/100/100?random=${randomIndex(people)' + ((index % 10) + 1)" alt="avatar" class="rounded-circle d-flex align-self-start me-3 shadow-1-strong" width="60" />
+                    <p class="ufw-bold mb-0 text-white" style="font-size: 15px"><span class="fw-bold text-white">Username :</span> {{ receiver.sender.username }}</p>
+                  </div>
+                  <div class="card-body m-2">
+                    <p class="mb-0 text-white" style="font-size: 15px"><span class="fw-bold">Chat : </span>{{ receiver.content }}</p>
+                  </div>
+                </div>
+              </li>
             </ul>
           </div>
         </div>
@@ -106,6 +117,7 @@ export default {
     const currentUser = ref("");
     const content = ref("");
     const message = ref("");
+    const receivermessage = ref([]);
     const route = useRoute();
 
     onMounted(async () => {
@@ -130,9 +142,15 @@ export default {
         const resp = await fetch(`http://localhost:3100/api/chats`);
         const data = await resp.json();
         messages.value = data.docs.filter((chats) => {
-          return chats.receiver.id === id.value && chats.sender.id === currentUser.value;
-        }); // messages.value = data.docs;
-        // console.log(currentUser.value);
+          return chats.sender.id === currentUser.value && chats.receiver.id === id.value;
+        });
+        receivermessage.value = data.docs.filter((chats) => {
+          return chats.receiver.id === currentUser.value && chats.sender.id === id.value;
+        });
+
+        // messages.value = data.docs;
+        console.log(receivermessage);
+        console.log(messages);
       } catch (error) {
         console.error("Error fetching messages:", error);
       }
@@ -193,6 +211,7 @@ export default {
       message,
       route,
       fetchMessages,
+      receivermessage,
       getUser,
       // trymsg,
       sendMessage,
